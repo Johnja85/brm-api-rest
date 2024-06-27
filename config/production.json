@@ -1,0 +1,6 @@
+{
+    "nombre": "Api Rest Express - production",
+    "configDB":{
+        "host": "brm-db-api"
+    }
+}

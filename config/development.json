@@ -1,0 +1,6 @@
+{
+    "nombre": "Api Rest Express - development",
+    "configDB":{
+        "host": "brm-db-api-prueba"
+    }
+}
