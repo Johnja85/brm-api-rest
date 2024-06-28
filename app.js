@@ -1,114 +1,30 @@
 const express = require('express');
 const config = require('config');
-// const logger = require('./logger');
+const users = require('./routes/users');
+const roles = require('./routes/roles');
+const auth = require('./routes/auth');
+const products = require('./routes/products');
+const invoices = require('./routes/invoices');
+const invoiceDetail = require('./routes/invoiceDetail');
+const sequelize = require('./config/connection');
+
 const app = express();
-const Joi = require('joi');
-
+const PORT = process.env.PORT || 3001;
 app.use(express.json());
-// app.use(express.urlencoded({extende:true}));
-// app.use(logger.log);
 
 
-// Configuración de entornos
-console.log('Aplicación: ' + config.get('nombre'));
-console.log('DB server: ' + config.get('configDB.host'));
-console.log('Variable de entorno: ' + app.get('env'));
+app.use('/api/auth', auth.route);
+app.use('/api/roles', roles.route);
+app.use('/api/users', users.route);
+app.use('/api/products', products.route);
+app.use('/api/invoices', invoices.route);
+app.use('/api/producthistory', invoiceDetail.route);
 
-
-
-const users = [
-    {
-        id: 1,
-        name: 'Melissa',
-    },
-    {
-        id: 2,
-        name: 'Jander',
-    }
-];
-
-app.get('/', (req, res) => {
-    res.send('Hola Mundo desde Express ' + req.params);
-});
-
-app.get('/api/users', (req, res) => {
-    res.send(users);
-});
-
-app.get('/api/users/:id', (req, res) => {
-    let user = getUser(req.params.id);
-    if (!user) {
-        res.status(400).send('User is not found');
-        return;
-    };
-    res.send(user);
-});
-
-app.post('/api/users', (req, res) => {
-
-    const {error, value} = validateUser(req.body.name);
-    if (!error) {
-        const user = {
-            id: users.length + 1,
-            name: value.name
-        };
-        users.push(user);
-        res.send(users);
-    } else {
-        res.status(400).send(error.details[0].message);
-    }
-});
-
-app.put('/api/users/:id', (req, res) => {
-    let user = getUser(req.params.id);
-    if (!user) {
-        res.status(400).send('User is not found');
-        return;
-    };
-
-    const {error, value} = validateUser(req.body.name);
-    if (!error) {
-        user.name = value.name;
-        res.send(user);
-    } else {
-        res.status(400).send(error.details[0].message);
-    }
-    console.log(user);
-});
-
-app.delete('/api/users/:id', (req, res) => {
-    let user = getUser(req.params.id);
-    if (!user) {
-        res.status(400).send('User is not found');
-        return;
-    };
-
-    const index = users.indexOf(user);
-    users.splice(index, 1);
-
-    res.send(user);
-})
-
-const port = process.env.PORT || 3001;
-app.listen(port, () => {
-    console.log(`Escuchando en el puerto ${port} ...`);
-});
-
-function getUser(id) {
-    return (users.find(user => user.id === parseInt(id)));
-}
-
-function validateUser(nameBody) {
-    const schema = Joi.object({
-        name: Joi.string()
-            .min(3)
-            .max(10)
-            .required()
+sequelize.sync({ alter: true }).then(() => {
+    console.log('Sincronización de modelos exitosa');
+    app.listen(PORT, () => {
+        console.log(`Escuchando en el puerto ${PORT} ...`);
     });
-
-    return (schema.validate({ name: nameBody }));
-}
-
-// app.post();
-// app.delete();
-// app.put();
+}).catch(error => {
+    console.error('Error al sincronizar los modelos:', error);
+});

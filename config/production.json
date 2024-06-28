@@ -1,6 +1,12 @@
 {
     "nombre": "Api Rest Express - production",
     "configDB":{
-        "host": "brm-db-api"
+        "host": "brm-db-api",
+        "username": "root",
+        "password": ""
+    },
+    "configToken":{
+        "SEED": "secret",
+        "expiration": "24h"
     }
 }
